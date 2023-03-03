@@ -4,6 +4,10 @@
 #include "iostream"
 
 int main(int argc, char* argv[]) {
+	SOCKADDR_STORAGE from;
+	int retval, fromlen, socket_type;
+	char servstr[NI_MAXSERV], hoststr[NI_MAXHOST];
+
 	SOCKET serverSocket, acceptSocket;
 	int port = 55555;
 	WSADATA wsaData;
@@ -48,14 +52,29 @@ int main(int argc, char* argv[]) {
 		std::cout << "listen(): Error listening on socket " << WSAGetLastError() << std::endl;
 	else
 		std::cout << "listen() is OK, I'm waiting for connections..." << std::endl;
-
-	acceptSocket = accept(serverSocket, NULL, NULL);
+	
+	fromlen = sizeof(socket_type);
+	retval = getsockopt(serverSocket, SOL_SOCKET, SO_TYPE, (char*)&socket_type, &fromlen);
+	fromlen = sizeof(from);
+	acceptSocket = accept(serverSocket, (SOCKADDR*)&from, &fromlen);
 	if (acceptSocket == INVALID_SOCKET) {
 		std::cout << "accept failed: " << WSAGetLastError() << std::endl;
 		WSACleanup();
 		return -1;
 	}
-	std::cout << "Accepted connection" << std::endl;
+	retval = getnameinfo((SOCKADDR*)&from,
+		fromlen,
+		hoststr,
+		NI_MAXHOST,
+		servstr,
+		NI_MAXSERV,
+		NI_NUMERICHOST | NI_NUMERICSERV);
+	if (retval != 0) {
+		std::cout << "getnameinfo failed: " << retval << std::endl;
+		WSACleanup();
+		return -1;
+	}
+	std::cout << "Accepted connection from host " << hoststr << " and port " << servstr << std::endl;
 	system("pause");
 	WSACleanup();
 
