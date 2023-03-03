@@ -1,0 +1,2 @@
+C:\Users\jvt05\Documents\BucksSocketsApp\Debug\BucksSocketsApp.exe
+C:\Users\jvt05\Documents\BucksSocketsAndClientApp\BucksSocketsApp\Debug\BucksSocketsApp.exe
